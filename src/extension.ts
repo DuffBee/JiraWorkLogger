@@ -160,7 +160,7 @@ export async function activate(context: vscode.ExtensionContext) {
   if (userToken) {
     jiraClientService = new JiraClientService(
       userToken,
-      "https://helpdesk.applus-erp.com"
+      "https://helpdesk-test.applus-erp.com"
     );
     jiraClientService
       .initialize()
