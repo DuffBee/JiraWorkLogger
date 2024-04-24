@@ -71,6 +71,14 @@ function logHours() {
     let seconds = Math.floor((durationMS % 60000) / 1000);
     let logEntry = `${endTime.toLocaleDateString()} - ${taskName} - ${hours}h ${minutes}m ${seconds}s\n`;
     let logFilePath = path.join(getWorkspaceRootPath() || "", "worklog.txt");
+    const durationInSeconds = durationMS / 1000;
+    if (durationInSeconds > 60) {
+      jiraClientService.logWorkOnIssue(taskName, {
+        comment: "Work logged from VS Code",
+        started: startTime.toISOString().replace("Z", "+0000"),
+        timeSpentSeconds: durationInSeconds,
+      });
+    }
     try {
       let existingData = fs.existsSync(logFilePath)
         ? fs.readFileSync(logFilePath, "utf-8")
@@ -134,18 +142,18 @@ export async function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(startCommand, stopCommand);
   const secrets: vscode.SecretStorage = context.secrets;
   let userToken = await secrets.get("jiraAuthToken");
-  console.log("UserToken", userToken);
   if (!userToken) {
-    promptForAuthToken(context);
+    userToken = await promptForAuthToken(context);
   } else {
     userToken = await retrieveToken(context);
 
     console.log("JiraAuthToken", userToken);
   }
+  console.log("UserToken", userToken);
   if (userToken) {
     jiraClientService = new JiraClientService(
       userToken,
-      "https://helpdesk.applus-erp.com"
+      "https://helpdesk-test.applus-erp.com"
     );
     jiraClientService
       .initialize()

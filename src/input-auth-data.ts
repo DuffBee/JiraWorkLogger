@@ -1,6 +1,8 @@
 import * as vscode from "vscode";
 
-export async function promptForAuthToken(context: vscode.ExtensionContext) {
+export async function promptForAuthToken(
+  context: vscode.ExtensionContext
+): Promise<string | undefined> {
   const token = await vscode.window.showInputBox({
     prompt: "Enter your JIRA authentication token",
     ignoreFocusOut: true,
@@ -10,11 +12,13 @@ export async function promptForAuthToken(context: vscode.ExtensionContext) {
   if (token) {
     await storeToken(token, context);
     vscode.window.showInformationMessage("Token stored securely!");
+    return token;
   } else {
     vscode.window.showErrorMessage(
       "Authentication token is required to use this extension."
     );
   }
+  return token;
 }
 
 export async function storeToken(

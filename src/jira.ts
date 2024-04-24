@@ -1,3 +1,5 @@
+import * as vscode from "vscode";
+
 export interface IJiraUser {
   key: string;
   name: string;
@@ -17,6 +19,12 @@ export interface IJiraIssue {
 interface IJiraIssueResponse {
   total: number;
   issues: IJiraIssue[];
+}
+
+export interface IJiraWorklog {
+  comment: string;
+  started: string;
+  timeSpentSeconds: number;
 }
 
 export class JiraClientService {
@@ -43,6 +51,10 @@ export class JiraClientService {
         },
       }
     );
+    if (!response.ok) {
+      vscode.window.showErrorMessage(`Failed to get user information`);
+      throw new Error(`Failed to get user information`);
+    }
     return (await response.json()) as IJiraUser;
   }
 
@@ -55,6 +67,12 @@ export class JiraClientService {
         },
       }
     );
+    if (!response.ok) {
+      vscode.window.showErrorMessage(
+        `Failed to get issues for user ${emailAddress}`
+      );
+      throw new Error(`Failed to get issues for user ${emailAddress}`);
+    }
     const data: IJiraIssueResponse =
       (await response.json()) as IJiraIssueResponse;
     return data.issues;
@@ -62,5 +80,25 @@ export class JiraClientService {
 
   getCurrentUser(): IJiraUser | undefined {
     return this.currentUser;
+  }
+
+  async logWorkOnIssue(issueKey: string, workLog: IJiraWorklog) {
+    console.log(JSON.stringify(workLog));
+    const response: Response = await fetch(
+      `${this.jiraBaseUrl}/rest/api/2/issue/${issueKey}/worklog`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${this.personalAccessToken}`,
+        },
+        body: JSON.stringify(workLog),
+      }
+    );
+    if (!response.ok) {
+      console.log(await response.json());
+      vscode.window.showErrorMessage(`Failed to log work on issue ${issueKey}`);
+      throw new Error(`Failed to log work on issue ${issueKey}`);
+    }
   }
 }
