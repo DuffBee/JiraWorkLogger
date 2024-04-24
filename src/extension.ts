@@ -58,9 +58,15 @@ function updateTimeMessage() {
   if (startTime && taskName) {
     let currentTime = new Date();
     let difference = currentTime.getTime() - startTime.getTime();
-    let hours = Math.floor(difference / 3600000);
-    let minutes = Math.floor((difference % 3600000) / 60000);
-    let seconds = Math.floor((difference % 60000) / 1000);
+    let hours = Math.floor(difference / 3600000)
+      .toString()
+      .padStart(2, "0");
+    let minutes = Math.floor((difference % 3600000) / 60000)
+      .toString()
+      .padStart(2, "0");
+    let seconds = Math.floor((difference % 60000) / 1000)
+      .toString()
+      .padStart(2, "0");
     statusBarItem.text = `$(timeline-view-icon) ${taskName}: ${hours}:${minutes}:${seconds}`;
   }
 }
