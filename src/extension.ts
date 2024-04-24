@@ -74,7 +74,15 @@ function logHours() {
     let minutes = Math.floor((durationMS % 3600000) / 60000);
     let seconds = Math.floor((durationMS % 60000) / 1000);
     let logEntry = `${endTime.toLocaleDateString()} - ${taskName} - ${hours}h ${minutes}m ${seconds}s\n`;
-    let logFilePath = path.join(getWorkspaceRootPath() || "", "worklog.txt");
+
+    let workspaceRoot = getWorkspaceRootPath() || "";
+    let outputFolderPath = path.join(workspaceRoot, "output");
+    let logFilePath = path.join(outputFolderPath, "worklog.txt");
+    
+    if (!fs.existsSync(outputFolderPath)) {
+      fs.mkdirSync(outputFolderPath);
+    }
+    
     const durationInSeconds = durationMS / 1000;
     if (durationInSeconds > 60) {
       jiraClientService.logWorkOnIssue(taskName, {
@@ -153,7 +161,7 @@ export async function activate(context: vscode.ExtensionContext) {
   if (userToken) {
     jiraClientService = new JiraClientService(
       userToken,
-      "https://helpdesk-test.applus-erp.com"
+      "https://helpdesk.applus-erp.com"
     );
     jiraClientService
       .initialize()
