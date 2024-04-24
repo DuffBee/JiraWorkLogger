@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
 import { JiraClientService } from "./jira";
+import { promptForAuthToken, retrieveToken } from "./input-auth-data";
 
 let startTime: Date | undefined;
 let timer: NodeJS.Timeout | undefined;
@@ -118,7 +119,7 @@ function resetLoggingState() {
   taskName = undefined;
 }
 
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
   let startCommand = vscode.commands.registerCommand(
     "jira-work-logger.startLogging",
     startLogging
@@ -128,22 +129,34 @@ export function activate(context: vscode.ExtensionContext) {
     stopLogging
   );
   context.subscriptions.push(startCommand, stopCommand);
+  const secrets: vscode.SecretStorage = context.secrets;
 
-  const jira = new JiraClientService("", "");
-  jira
-    .getUserInformation()
-    .then((user) => {
-      console.log(user);
-      vscode.window.showInformationMessage(
-        `Logged in as ${user.displayName} (${user.emailAddress})`
-      );
-    })
-    .catch((err) => {
-      console.log(err);
-      vscode.window.showErrorMessage(
-        "Failed to get user information: " + err.message
-      );
-    });
+  let userToken = await secrets.get("jiraAuthToken");
+  if (!userToken) {
+    promptForAuthToken(context);
+  } else {
+    const userAuthToken = await retrieveToken(context);
+
+    console.log("JiraAuthToken", userToken);
+    if (userAuthToken) {
+      console.log("User Auth Token", userAuthToken);
+    }
+    const jira = new JiraClientService(userAuthToken as string, "");
+    jira
+      .getUserInformation()
+      .then((user) => {
+        console.log(user);
+        vscode.window.showInformationMessage(
+          `Logged in as ${user.displayName} (${user.emailAddress})`
+        );
+      })
+      .catch((err) => {
+        console.log(err);
+        vscode.window.showErrorMessage(
+          "Failed to get user information: " + err.message
+        );
+      });
+  }
 }
 
 export function deactivate() {
