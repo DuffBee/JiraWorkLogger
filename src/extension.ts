@@ -22,12 +22,12 @@ async function startLogging() {
     return;
   }
   startTime = new Date();
-  statusBarItem.text = `${taskName}`;
+  statusBarItem.text = `$(timeline-view-icon) ${taskName}`;
   statusBarItem.show();
   vscode.window.showInformationMessage(
     `Started logging time for task: ${taskName}`
   );
-  timer = setInterval(updateTimeMessage, 3600000);
+  timer = setInterval(updateTimeMessage);
 }
 
 function stopLogging() {
@@ -61,7 +61,8 @@ function updateTimeMessage() {
     let difference = currentTime.getTime() - startTime.getTime();
     let hours = Math.floor(difference / 3600000);
     let minutes = Math.floor((difference % 3600000) / 60000);
-    vscode.window.showInformationMessage(`Working on ${taskName} for ${hours} hours and ${minutes} minutes.`);
+    let seconds = Math.floor((difference % 60000) / 1000);
+    statusBarItem.text = `$(timeline-view-icon) ${taskName}: ${hours}:${minutes}:${seconds}`;
   }
 }
 
@@ -111,7 +112,7 @@ function logHours() {
       }
       fs.writeFileSync(logFilePath, newData);
       vscode.window.showInformationMessage(
-        `Logged ${hours}h ${minutes}m ${seconds}s on ${taskName}. Details saved to worklog.txt`
+        `Logged ${hours}h ${minutes}m ${seconds}s on ${taskName}`
       );
     } catch (err) {
       if (err instanceof Error) {
