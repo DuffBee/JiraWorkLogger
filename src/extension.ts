@@ -16,7 +16,9 @@ function startLogging() {
 }
 
 function stopLogging() {
-  if (timer) clearInterval(timer);
+  if (timer) {
+    clearInterval(timer);
+  }
   vscode.window.showInformationMessage("Stopped logging.");
   startTime = undefined;
 }
@@ -26,11 +28,11 @@ function stopLogging() {
 
 export function activate(context: vscode.ExtensionContext) {
   let startCommand = vscode.commands.registerCommand(
-    "extension.startLogging",
+    "jira-work-logger.startLogging",
     startLogging
   );
   let stopCommand = vscode.commands.registerCommand(
-    "extension.stopLogging",
+    "jira-work-logger.stopLogging",
     stopLogging
   );
   context.subscriptions.push(startCommand, stopCommand);

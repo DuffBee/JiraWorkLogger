@@ -14,8 +14,12 @@
   "contributes": {
     "commands": [
       {
-        "command": "jira-work-logger.helloWorld",
-        "title": "Hello World"
+        "command": "jira-work-logger.startLogging",
+        "title": "Start Logging"
+      },
+      {
+        "command": "jira-work-logger.stopLogging",
+        "title": "Stop Logging"
       }
     ]
   },
