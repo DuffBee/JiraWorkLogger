@@ -24,7 +24,7 @@ async function startLogging() {
   vscode.window.showInformationMessage(
     `Started logging time for task: ${taskName}`
   );
-  timer = setInterval(updateTimeMessage, 60000);
+  timer = setInterval(updateTimeMessage, 3600000);
 }
 
 function stopLogging() {
@@ -54,11 +54,9 @@ function updateTimeMessage() {
   if (startTime && taskName) {
     let currentTime = new Date();
     let difference = currentTime.getTime() - startTime.getTime();
-    let minutes = Math.floor(difference / 60000);
-    let seconds = Math.floor((difference % 60000) / 1000);
-    vscode.window.showInformationMessage(
-      `Working on ${taskName} for ${minutes} minutes and ${seconds} seconds.`
-    );
+    let hours = Math.floor(difference / 3600000);
+    let minutes = Math.floor((difference % 3600000) / 60000);
+    vscode.window.showInformationMessage(`Working on ${taskName} for ${hours} hours and ${minutes} minutes.`);
   }
 }
 
@@ -70,7 +68,15 @@ function logHours() {
     let minutes = Math.floor((durationMS % 3600000) / 60000);
     let seconds = Math.floor((durationMS % 60000) / 1000);
     let logEntry = `${endTime.toLocaleDateString()} - ${taskName} - ${hours}h ${minutes}m ${seconds}s\n`;
-    let logFilePath = path.join(getWorkspaceRootPath() || "", "worklog.txt");
+
+    let workspaceRoot = getWorkspaceRootPath() || "";
+    let outputFolderPath = path.join(workspaceRoot, "output");
+    let logFilePath = path.join(outputFolderPath, "worklog.txt");
+    
+    if (!fs.existsSync(outputFolderPath)) {
+      fs.mkdirSync(outputFolderPath);
+    }
+    
     const durationInSeconds = durationMS / 1000;
     if (durationInSeconds > 60) {
       jiraClientService.logWorkOnIssue(taskName, {
@@ -153,7 +159,7 @@ export async function activate(context: vscode.ExtensionContext) {
   if (userToken) {
     jiraClientService = new JiraClientService(
       userToken,
-      "https://helpdesk-test.applus-erp.com"
+      "https://helpdesk.applus-erp.com"
     );
     jiraClientService
       .initialize()
