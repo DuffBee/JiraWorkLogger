@@ -13,6 +13,9 @@ export interface IJiraIssue {
   fields: {
     summary: string;
     description: string;
+    issuetype: {
+            subtask: boolean;
+        };
   };
 }
 
@@ -78,7 +81,8 @@ export class JiraClientService {
     }
     const data: IJiraIssueResponse =
       (await response.json()) as IJiraIssueResponse;
-    return data.issues;
+    const subtasks = data.issues.filter(issue => issue.fields.issuetype.subtask);
+    return subtasks;
   }
 
   getCurrentUser(): IJiraUser | undefined {
