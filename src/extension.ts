@@ -24,7 +24,7 @@ async function startLogging() {
   vscode.window.showInformationMessage(
     `Started logging time for task: ${taskName}`
   );
-  timer = setInterval(updateTimeMessage, 60000);
+  timer = setInterval(updateTimeMessage, 3600000);
 }
 
 function stopLogging() {
@@ -54,11 +54,9 @@ function updateTimeMessage() {
   if (startTime && taskName) {
     let currentTime = new Date();
     let difference = currentTime.getTime() - startTime.getTime();
-    let minutes = Math.floor(difference / 60000);
-    let seconds = Math.floor((difference % 60000) / 1000);
-    vscode.window.showInformationMessage(
-      `Working on ${taskName} for ${minutes} minutes and ${seconds} seconds.`
-    );
+    let hours = Math.floor(difference / 3600000);
+    let minutes = Math.floor((difference % 3600000) / 60000);
+    vscode.window.showInformationMessage(`Working on ${taskName} for ${hours} hours and ${minutes} minutes.`);
   }
 }
 
