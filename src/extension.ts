@@ -8,6 +8,8 @@ let startTime: Date | undefined;
 let timer: NodeJS.Timeout | undefined;
 let taskName: string | undefined;
 
+export let jiraClientService: JiraClientService;
+
 async function startLogging() {
   taskName = await vscode.window.showInputBox({
     prompt: "What task are you working on?",
@@ -141,22 +143,23 @@ export async function activate(context: vscode.ExtensionContext) {
     if (userAuthToken) {
       console.log("User Auth Token", userAuthToken);
     }
-    const jira = new JiraClientService(userAuthToken as string, "");
-    jira
-      .getUserInformation()
-      .then((user) => {
-        console.log(user);
-        vscode.window.showInformationMessage(
-          `Logged in as ${user.displayName} (${user.emailAddress})`
-        );
-      })
-      .catch((err) => {
-        console.log(err);
-        vscode.window.showErrorMessage(
-          "Failed to get user information: " + err.message
-        );
-      });
   }
+
+  jiraClientService = new JiraClientService(
+    "",
+    "https://helpdesk.applus-erp.com"
+  );
+  jiraClientService
+    .initialize()
+    .then(() => {
+      console.log("Jira client service initialized.");
+    })
+    .catch((err) => {
+      console.error("Failed to initialize Jira client service: " + err.message);
+      vscode.window.showErrorMessage(
+        "Failed to initialize Jira client service: " + err.message
+      );
+    });
 }
 
 export function deactivate() {
