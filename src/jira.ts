@@ -59,8 +59,11 @@ export class JiraClientService {
   }
 
   async getIssuesForUser(emailAddress: string): Promise<IJiraIssue[]> {
+    const jql = encodeURIComponent(
+      `assignee = "${emailAddress}" AND status NOT IN (Done, Closed, Integrated, Canceled)`
+    );
     const response: Response = await fetch(
-      `${this.jiraBaseUrl}/rest/api/2/search?jql=assignee="${emailAddress}"`,
+      `${this.jiraBaseUrl}/rest/api/2/search?jql=${jql}`,
       {
         headers: {
           Authorization: `Bearer ${this.personalAccessToken}`,

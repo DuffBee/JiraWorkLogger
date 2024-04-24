@@ -3,6 +3,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { JiraClientService } from "./jira";
 import { promptForAuthToken, retrieveToken } from "./input-auth-data";
+import { selectIssue } from "./select-issue";
 
 let startTime: Date | undefined;
 let timer: NodeJS.Timeout | undefined;
@@ -11,9 +12,7 @@ let taskName: string | undefined;
 export let jiraClientService: JiraClientService;
 
 async function startLogging() {
-  taskName = await vscode.window.showInputBox({
-    prompt: "What task are you working on?",
-  });
+  taskName = await selectIssue();
   if (!taskName || taskName.trim() === "") {
     vscode.window.showWarningMessage(
       "Task logging canceled due to no valid task name provided."
@@ -56,7 +55,9 @@ function updateTimeMessage() {
     let difference = currentTime.getTime() - startTime.getTime();
     let hours = Math.floor(difference / 3600000);
     let minutes = Math.floor((difference % 3600000) / 60000);
-    vscode.window.showInformationMessage(`Working on ${taskName} for ${hours} hours and ${minutes} minutes.`);
+    vscode.window.showInformationMessage(
+      `Working on ${taskName} for ${hours} hours and ${minutes} minutes.`
+    );
   }
 }
 
@@ -72,11 +73,11 @@ function logHours() {
     let workspaceRoot = getWorkspaceRootPath() || "";
     let outputFolderPath = path.join(workspaceRoot, "output");
     let logFilePath = path.join(outputFolderPath, "worklog.txt");
-    
+
     if (!fs.existsSync(outputFolderPath)) {
       fs.mkdirSync(outputFolderPath);
     }
-    
+
     const durationInSeconds = durationMS / 1000;
     if (durationInSeconds > 60) {
       jiraClientService.logWorkOnIssue(taskName, {
