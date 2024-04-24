@@ -130,36 +130,37 @@ export async function activate(context: vscode.ExtensionContext) {
     "jira-work-logger.stopLogging",
     stopLogging
   );
+  console.log("Jira Work Logger extension is now active.");
   context.subscriptions.push(startCommand, stopCommand);
   const secrets: vscode.SecretStorage = context.secrets;
-
   let userToken = await secrets.get("jiraAuthToken");
+  console.log("UserToken", userToken);
   if (!userToken) {
     promptForAuthToken(context);
   } else {
-    const userAuthToken = await retrieveToken(context);
+    userToken = await retrieveToken(context);
 
     console.log("JiraAuthToken", userToken);
-    if (userAuthToken) {
-      console.log("User Auth Token", userAuthToken);
-    }
   }
-
-  jiraClientService = new JiraClientService(
-    "",
-    "https://helpdesk.applus-erp.com"
-  );
-  jiraClientService
-    .initialize()
-    .then(() => {
-      console.log("Jira client service initialized.");
-    })
-    .catch((err) => {
-      console.error("Failed to initialize Jira client service: " + err.message);
-      vscode.window.showErrorMessage(
-        "Failed to initialize Jira client service: " + err.message
-      );
-    });
+  if (userToken) {
+    jiraClientService = new JiraClientService(
+      userToken,
+      "https://helpdesk.applus-erp.com"
+    );
+    jiraClientService
+      .initialize()
+      .then(() => {
+        console.log("Jira client service initialized.");
+      })
+      .catch((err) => {
+        console.error(
+          "Failed to initialize Jira client service: " + err.message
+        );
+        vscode.window.showErrorMessage(
+          "Failed to initialize Jira client service: " + err.message
+        );
+      });
+  }
 }
 
 export function deactivate() {
