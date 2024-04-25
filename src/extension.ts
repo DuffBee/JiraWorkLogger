@@ -2,7 +2,11 @@ import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
 import { JiraClientService } from "./jira";
-import { promptForAuthToken, retrieveToken } from "./input-auth-data";
+import {
+  promptForAuthToken,
+  resetAuthToken,
+  retrieveToken,
+} from "./input-auth-data";
 import { selectIssue } from "./select-issue";
 
 let startTime: Date | undefined;
@@ -39,7 +43,7 @@ function stopLogging() {
   } else {
     vscode.window.showInformationMessage("No active task to log.");
   }
-  statusBarItem.text = "No active task";
+  statusBarItem.text = "$(timeline-view-icon) No active task";
   statusBarItem.show();
   resetLoggingState();
 }
@@ -155,7 +159,11 @@ export async function activate(context: vscode.ExtensionContext) {
     "jira-work-logger.stopLogging",
     stopLogging
   );
-  context.subscriptions.push(startCommand, stopCommand);
+  let resetAuhtTokenCommand = vscode.commands.registerCommand(
+    "jira-work-logger.resetAuthToken",
+    () => resetAuthToken(context)
+  );
+  context.subscriptions.push(startCommand, stopCommand, resetAuhtTokenCommand);
   const secrets: vscode.SecretStorage = context.secrets;
   let userToken = await secrets.get("jiraAuthToken");
   if (!userToken) {
@@ -185,7 +193,7 @@ export async function activate(context: vscode.ExtensionContext) {
   statusBarItem = vscode.window.createStatusBarItem(
     vscode.StatusBarAlignment.Left
   );
-  statusBarItem.text = "No active task";
+  statusBarItem.text = "$(timeline-view-icon) No active task";
   statusBarItem.show();
   context.subscriptions.push(statusBarItem);
   console.log("Jira Work Logger extension is now active.");
