@@ -35,3 +35,9 @@ export async function retrieveToken(
   const secrets = context.secrets;
   return await secrets.get("jiraAuthToken");
 }
+
+export async function resetAuthToken(context: vscode.ExtensionContext) {
+  const secrets = context.secrets;
+  await secrets.delete("jiraAuthToken");
+  await promptForAuthToken(context);
+}

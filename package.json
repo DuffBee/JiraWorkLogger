@@ -17,15 +17,15 @@
     "commands": [
       {
         "command": "jira-work-logger.startLogging",
-        "title": "Start Logging"
+        "title": "Jira Work Logger: Start Logging"
       },
       {
         "command": "jira-work-logger.stopLogging",
-        "title": "Stop Logging"
+        "title": "Jira Work Logger: Stop Logging"
       },
       {
-        "command": "jira-work-logger.askToken",
-        "title": "Enter Jira Auth Token"
+        "command": "jira-work-logger.resetAuthToken",
+        "title": "Jira Work Logger: Reset Auth Token"
       }
     ]
   },
