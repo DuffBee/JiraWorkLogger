@@ -22,6 +22,10 @@
       {
         "command": "jira-work-logger.stopLogging",
         "title": "Stop Logging"
+      },
+      {
+        "command": "jira-work-logger.askToken",
+        "title": "Enter Jira Auth Token"
       }
     ]
   },
